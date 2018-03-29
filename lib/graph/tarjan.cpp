@@ -3,30 +3,33 @@
 using namespace std;
 
 typedef vector<int> vi;
-#define MAX 9999
+#define MAXV 9999
 
-int color[MAX];
-int parent[MAX];
-int disc[MAX];
-vi graph[MAX];
+vi g[MAXV];
+int color[MAXV];
+int parent[MAXV];
+int id[MAXV];
+int sz;
 vector<int> s;
 
 void t_dfs(int v, int &d){
-	parent[v] = ++d;
+	parent[v] = d++;
+	int d_ = parent[v];
 	s.push_back(v);
 	color[v] = 1;
-	int d_ = parent[v];
-	for (int w : graph[v]){
+	for (int w : g[v]){
 		if (color[w] == 2) continue;
-		if (color[w] == 0) t_dfs(w, d);
+		if (color[w] == 0)
+			t_dfs(w, d);
 		parent[v] = min(parent[v], parent[w]);
 	}
 	if (parent[v] != d_) return;
+	int id_ = sz++;
 	while (true){
 		int x = s.back();
 		s.pop_back();
 		color[x] = 2;
-		parent[x] = v;
+		id[x] = id_;
 		if (x == v) break;
 	}
 }
@@ -34,12 +37,11 @@ void t_dfs(int v, int &d){
 void tarjan(int n){
 	memset(color, 0, sizeof color);
 	memset(parent, 0, sizeof parent);
-	memset(disc, 0, sizeof disc);
 	s.resize(0);
+	sz = 0;
+	int d = 1;
 	for (int i = 1; i <= n; i++)
-		graph[0].push_back(i);
-	int d = 0;
-	t_dfs(0, d);
+		if (color[i] == 0) t_dfs(i, d);
 }
 
 int main(){ _
@@ -48,20 +50,17 @@ int main(){ _
 		cin >> n >> m;
 		if ((n+m) == 0) break;
 		for (int i = 0; i <= n; i++)
-			graph[i].resize(0);
+			g[i].resize(0);
 		int v, w, u;
 		for (int i = 0; i < m; i++){
 			cin >> v >> w >> u;
-			graph[v].push_back(w);
+			g[v].push_back(w);
 			if (u == 2)
-				graph[w].push_back(v);
+				g[w].push_back(v);
 
 		}
 		tarjan(n);
-		bool ans = true;
-		for (int i = 1; i <= n; i++)
-			ans &= parent[i] == parent[1];
-		cout << ans << endl;
+		cout << (sz == 1) << endl;
 	}
 	return 0;
 }
